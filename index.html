@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brandeis Course Match</title>
+  <style>
+    :root {
+      --bg: #f7fbf8;
+      --card: #ffffff;
+      --primary: #58cc02;
+      --primary-dark: #46a302;
+      --secondary: #1cb0f6;
+      --text: #24313f;
+      --muted: #6b7785;
+      --border: #dfe7ef;
+      --shadow: 0 8px 24px rgba(36, 49, 63, 0.08);
+      --danger: #ff6b6b;
+      --tag: #eef7ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f5fff0 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px 48px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .brand-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-wrap {
+      margin: 10px 0 18px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      background: #eaf1e7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #8be33e);
+      transition: width 0.3s ease;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    .title {
+      font-size: 1.6rem;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .mascot {
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
+      background: #ebffd9;
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+      margin: 0 auto 18px;
+    }
+
+    .btn,
+    .choice-btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.2s ease;
+    }
+
+    .btn:hover,
+    .choice-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 0 var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .choice-btn {
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--border);
+      text-align: left;
+    }
+
+    .choice-btn.selected {
+      border-color: var(--secondary);
+      background: #f0fbff;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .chip {
+      border: 2px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .chip.selected {
+      background: #eefbff;
+      border-color: var(--secondary);
+      color: #116b92;
+    }
+
+    .question-block {
+      margin-bottom: 20px;
+    }
+
+    .question-label {
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .recommendation-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .course-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .course-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .course-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      background: var(--tag);
+      color: #2c5f7c;
+      font-size: 0.82rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .course-reason {
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="phone-frame">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-badge">🎓</div>
+          <span>Brandeis Course Match</span>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="stepLabel">Welcome</span>
+          <span id="stepCount">Step 1 of 5</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="card">
+
+        <section class="screen active" id="screen-0">
+          <div class="mascot">📚</div>
+          <h1 class="title">Find classes that fit you</h1>
+          <p class="subtitle">
+            Answer a few quick questions and get course ideas for your first term at Brandeis.
+          </p>
+          <button class="btn btn-primary" onclick="goToScreen(1)">Get started</button>
+        </section>
+
+        <section class="screen" id="screen-1">
+          <h2 class="title">What best describes you right now?</h2>
+          <p class="subtitle">Choose the option that feels closest to where you are.</p>
+          <div class="choices" id="certaintyChoices">
+            <button class="choice-btn" data-value="decided">I know my major</button>
+            <button class="choice-btn" data-value="considering">I’m deciding between a few majors</button>
+            <button class="choice-btn" data-value="exploring">I’m exploring</button>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="nextFromCertainty()">Continue</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-2">
+          <h2 class="title">What subjects interest you?</h2>
+          <p class="subtitle">Pick a few areas that sound exciting or worth exploring.</p>
+          <div class="chip-grid" id="interestChips">
+            <button class="chip" data-value="psychology">Psychology</button>
+            <button class="chip" data-value="computer science">Computer Science</button>
+            <button class="chip" data-value="economics">Economics</button>
+            <button class="chip" data-value="biology">Biology</button>
+            <button class="chip" data-value="writing">Writing</button>
+            <button class="chip" data-value="politics">Politics</button>
+            <button class="chip" data-value="art">Art</button>
+            <button class="chip" data-value="history">History</button>
+            <button class="chip" data-value="math">Math</button>
+            <button class="chip" data-value="environment">Environment</button>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="nextFromInterests()">Continue</button>
+            <button class="btn btn-secondary" onclick="goToScreen(1)">Back</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-3">
+          <h2 class="title">Tell us your class preferences</h2>
+          <p class="subtitle">These help narrow down the best course matches.</p>
+
+          <div class="question-block">
+            <label class="question-label">Preferred class size</label>
+            <div class="choices preference-group" data-key="classSize">
+              <button class="choice-btn" data-value="small">Small</button>
+              <button class="choice-btn" data-value="medium">Medium</button>
+              <button class="choice-btn" data-value="large">Large</button>
+            </div>
+          </div>
+
+          <div class="question-block">
+            <label class="question-label">Preferred workload</label>
+            <div class="choices preference-group" data-key="workload">
+              <button class="choice-btn" data-value="light">Light</button>
+              <button class="choice-btn" data-value="balanced">Balanced</button>
+              <button class="choice-btn" data-value="challenging">Challenging</button>
+            </div>
+          </div>
+
+          <div class="question-block">
+            <label class="question-label">Preferred time of day</label>
+            <div class="choices preference-group" data-key="time">
+              <button class="choice-btn" data-value="morning">Morning</button>
+              <button class="choice-btn" data-value="afternoon">Afternoon</button>
+              <button class="choice-btn" data-value="flexible">Flexible</button>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" onclick="nextFromPreferences()">See my matches</button>
+            <button class="btn btn-secondary" onclick="goToScreen(2)">Back</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-4">
+          <h2 class="title">Your course matches</h2>
+          <p class="subtitle">Here are a few suggestions based on what you shared.</p>
+          <div class="summary-box" id="summaryBox"></div>
+          <div class="recommendation-list" id="recommendationList"></div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="goToScreen(5)">Refine my options</button>
+            <button class="btn btn-secondary" onclick="goToScreen(3)">Change preferences</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-5">
+          <h2 class="title">What would you like next?</h2>
+          <p class="subtitle">Choose a next step to keep exploring.</p>
+          <div class="choices">
+            <button class="choice-btn" onclick="refineResults('similar')">Show me more like these</button>
+            <button class="choice-btn" onclick="refineResults('easier')">Show easier options</button>
+            <button class="choice-btn" onclick="refineResults('explore')">Help me explore other subjects</button>
+            <button class="choice-btn" onclick="restartApp()">Start over</button>
+          </div>
+          <div class="footer-note">
+            Tip: You can host this file on GitHub Pages as a static site.
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      certainty: "",
+      interests: [],
+      classSize: "",
+      workload: "",
+      time: ""
+    };
+
+    const courseCatalog = [
+      {
+        title: "Introduction to Psychology",
+        subject: "psychology",
+        tags: ["Intro", "Exploratory", "Popular"],
+        sizes: ["medium", "large"],
+        workloads: ["light", "balanced"],
+        times: ["morning", "flexible"],
+        reason: "A strong starting point if you're curious about behavior, learning, and mental processes."
+      },
+      {
+        title: "Foundations of Computer Science",
+        subject: "computer science",
+        tags: ["Intro", "Major Fit", "Problem Solving"],
+        sizes: ["medium", "large"],
+        workloads: ["balanced", "challenging"],
+        times: ["afternoon", "flexible"],
+        reason: "A good fit if you enjoy logic, coding, and structured problem-solving."
+      },
+      {
+        title: "Principles of Economics",
+        subject: "economics",
+        tags: ["Intro", "Analytical", "Broad Interest"],
+        sizes: ["large", "medium"],
+        workloads: ["balanced"],
+        times: ["morning", "afternoon", "flexible"],
+        reason: "Useful for students interested in markets, policy, and decision-making."
+      },
+      {
+        title: "Introduction to Biology",
+        subject: "biology",
+        tags: ["Intro", "STEM", "Lab-Based"],
+        sizes: ["medium", "large"],
+        workloads: ["balanced", "challenging"],
+        times: ["morning", "flexible"],
+        reason: "A solid option if you want foundational life science experience."
+      },
+      {
+        title: "Creative Writing Workshop",
+        subject: "writing",
+        tags: ["Small Class", "Discussion-Based", "Creative"],
+        sizes: ["small"],
+        workloads: ["light", "balanced"],
+        times: ["afternoon", "flexible"],
+        reason: "Great for students who want a more personal, expressive classroom experience."
+      },
+      {
+        title: "Introduction to Political Theory",
+        subject: "politics",
+        tags: ["Reading", "Discussion", "Exploratory"],
+        sizes: ["small", "medium"],
+        workloads: ["balanced", "challenging"],
+        times: ["afternoon", "flexible"],
+        reason: "A good match if you enjoy big questions about society, power, and justice."
+      },
+      {
+        title: "Art and Visual Culture",
+        subject: "art",
+        tags: ["Exploratory", "Creative", "Visual"],
+        sizes: ["small", "medium"],
+        workloads: ["light", "balanced"],
+        times: ["afternoon", "flexible"],
+        reason: "A welcoming option for students interested in creative expression and interpretation."
+      },
+      {
+        title: "World History in Global Perspective",
+        subject: "history",
+        tags: ["Exploratory", "Humanities", "Contextual"],
+        sizes: ["medium"],
+        workloads: ["balanced"],
+        times: ["morning", "afternoon"],
+        reason: "Helpful if you enjoy patterns, stories, and understanding change over time."
+      },
+      {
+        title: "Calculus I",
+        subject: "math",
+        tags: ["Major Fit", "Quantitative", "STEM"],
+        sizes: ["large", "medium"],
+        workloads: ["challenging"],
+        times: ["morning", "flexible"],
+        reason: "A strong option for students interested in quantitative fields and analytical thinking."
+      },
+      {
+        title: "Introduction to Environmental Studies",
+        subject: "environment",
+        tags: ["Exploratory", "Interdisciplinary", "Current Issues"],
+        sizes: ["small", "medium"],
+        workloads: ["light", "balanced"],
+        times: ["afternoon", "flexible"],
+        reason: "A good fit if you care about sustainability, systems, and real-world issues."
+      }
+    ];
+
+    const totalSteps = 5;
+
+    function updateProgress(screenIndex) {
+      const labels = [
+        "Welcome",
+        "About you",
+        "Interests",
+        "Preferences",
+        "Matches",
+        "Next steps"
+      ];
+
+      const clamped = Math.min(screenIndex, totalSteps);
+      const percent = (clamped / totalSteps) * 100;
+      document.getElementById("progressFill").style.width = `${percent}%`;
+      document.getElementById("stepLabel").textContent = labels[screenIndex] || "Course Match";
+      document.getElementById("stepCount").textContent = `Step ${Math.min(screenIndex + 1, 6)} of 6`;
+    }
+
+    function goToScreen(index) {
+      document.querySelectorAll(".screen").forEach(screen => screen.classList.remove("active"));
+      document.getElementById(`screen-${index}`).classList.add("active");
+      updateProgress(index);
+      if (index === 4) renderRecommendations();
+    }
+
+    document.querySelectorAll("#certaintyChoices .choice-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#certaintyChoices .choice-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        state.certainty = btn.dataset.value;
+      });
+    });
+
+    document.querySelectorAll("#interestChips .chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        chip.classList.toggle("selected");
+        const value = chip.dataset.value;
+        if (state.interests.includes(value)) {
+          state.interests = state.interests.filter(item => item !== value);
+        } else {
+          state.interests.push(value);
+        }
+      });
+    });
+
+    document.querySelectorAll(".preference-group").forEach(group => {
+      const key = group.dataset.key;
+      group.querySelectorAll(".choice-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          group.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          state[key] = btn.dataset.value;
+        });
+      });
+    });
+
+    function nextFromCertainty() {
+      if (!state.certainty) {
+        alert("Please choose an option before continuing.");
+        return;
+      }
+      goToScreen(2);
+    }
+
+    function nextFromInterests() {
+      if (state.interests.length === 0) {
+        alert("Please select at least one interest.");
+        return;
+      }
+      goToScreen(3);
+    }
+
+    function nextFromPreferences() {
+      if (!state.classSize || !state.workload || !state.time) {
+        alert("Please answer all preference questions.");
+        return;
+      }
+      goToScreen(4);
+    }
+
+    function scoreCourse(course) {
+      let score = 0;
+
+      if (state.interests.includes(course.subject)) score += 4;
+      if (course.sizes.includes(state.classSize)) score += 2;
+      if (course.workloads.includes(state.workload)) score += 2;
+      if (course.times.includes(state.time)) score += 1;
+
+      if (state.certainty === "exploring" && course.tags.includes("Exploratory")) score += 2;
+      if (state.certainty === "decided" && course.tags.includes("Major Fit")) score += 2;
+      if (state.certainty === "considering" && course.tags.includes("Intro")) score += 1;
+
+      return score;
+    }
+
+    function renderRecommendations() {
+      const summaryBox = document.getElementById("summaryBox");
+      const list = document.getElementById("recommendationList");
+
+      const ranked = [...courseCatalog]
+        .map(course => ({ ...course, score: scoreCourse(course) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      summaryBox.innerHTML = `
+        <strong>Your preferences:</strong><br>
+        Path: ${formatText(state.certainty)}<br>
+        Interests: ${state.interests.map(formatText).join(", ")}<br>
+        Class size: ${formatText(state.classSize)}<br>
+        Workload: ${formatText(state.workload)}<br>
+        Time: ${formatText(state.time)}
+      `;
+
+      list.innerHTML = ranked.map(course => `
+        <div class="course-card">
+          <div class="course-title">${course.title}</div>
+          <div class="course-tags">
+            ${course.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+          <p class="course-reason">${course.reason}</p>
+        </div>
+      `).join("");
+    }
+
+    function refineResults(mode) {
+      if (mode === "easier") {
+        state.workload = "light";
+      } else if (mode === "explore") {
+        state.certainty = "exploring";
+      }
+      goToScreen(4);
+    }
+
+    function restartApp() {
+      state.certainty = "";
+      state.interests = [];
+      state.classSize = "";
+      state.workload = "";
+      state.time = "";
+
+      document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+      goToScreen(0);
+    }
+
+    function formatText(value) {
+      if (!value) return "Not selected";
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    updateProgress(0);
+  </script>
+</body>
+</html>
